@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
+
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 import scipy.stats as stats
 from datetime import datetime, timedelta
@@ -12,6 +14,7 @@ from datetime import datetime, timedelta
 Config, constants, functions that are shared by all solution notebooks.
 """
 
+### Chart configs.
 titlesize = 16
 labelsize = 16
 legendsize = 16
@@ -33,6 +36,7 @@ plt.rc('ytick', labelsize=yticksize)
 plt.rc('legend', fontsize=legendsize)
 
 
+### DB file configs.
 URL_BASE = 'https://raw.githubusercontent.com/ab-courses/simulator-ab-datasets/main/2022-04-01/{}'
 
 # def read_database(file_name):
@@ -43,6 +47,7 @@ def read_from_database(file_name, parse_dates_list=[]):
     return pd.read_csv(URL_BASE.format(file_name), parse_dates=parse_dates_list)
 
 
+### Lesson 1.
 def get_data_subset(df, begin_date=None, end_date=None, user_ids=None, columns=None):
     """Возвращает подмножество данных.
 
@@ -84,6 +89,17 @@ def get_data_subset(df, begin_date=None, end_date=None, user_ids=None, columns=N
     )
 
 
+### Lesson 3.
+def get_minimal_determinable_effect(std, sample_size, alpha=0.05, beta=0.2):
+    t_alpha = norm.ppf(1 - alpha / 2, loc=0, scale=1)
+    t_beta = norm.ppf(1 - beta, loc=0, scale=1)
+    
+    disp_sum_sqrt = (2 * (std ** 2)) ** 0.5
+    mde = (t_alpha + t_beta) * disp_sum_sqrt / np.sqrt(sample_size)
+
+    return mde
+
+
 def get_sample_size_abs(epsilon, std, alpha=0.05, beta=0.2):
     """Absolute change."""
     t_alpha = stats.norm.ppf(1 - alpha / 2, loc=0, scale=1)
@@ -108,7 +124,12 @@ def get_sample_size_rel(mu, std, eff=0.01, alpha=0.05, beta=0.2):
     return get_sample_size_abs(eff * mu, std, alpha, beta)
 
 
-def check_ttest(a, b, alpha=0.05):
-    """Тест Стьюдента. Возвращает 1, если отличия значимы."""
-    _, pvalue = ttest_ind(a, b)
-    return int(pvalue < alpha)
+# def check_ttest(a, b, alpha=0.05):
+#     """Тест Стьюдента. Возвращает 1, если отличия значимы."""
+#     _, pvalue = ttest_ind(a, b)
+#     return int(pvalue < alpha)
+
+
+def check_test(test, a, b, alpha=0.05):
+    """Возвращает 1, если отличия значимы."""
+    return int(test(a, b).pvalue < alpha)
