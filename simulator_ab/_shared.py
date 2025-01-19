@@ -133,3 +133,8 @@ def get_sample_size_rel(mu, std, eff=0.01, alpha=0.05, beta=0.2):
 def check_test(test, a, b, alpha=0.05):
     """Возвращает 1, если отличия значимы."""
     return int(test(a, b).pvalue < alpha)
+
+def print_res(**kwargs):
+    for (k, v) in kwargs.items():
+        print('{} = {}'.format(k, v))
+
