@@ -135,7 +135,7 @@ def check_test(test, a, b, alpha=0.05):
     return int(test(a, b).pvalue < alpha)
 
 
-def print_result(**kwargs):
+def print_kwargs(**kwargs):
     """Prints keyword agruments with their names (thus, requires named argument call)."""
     for (k, v) in kwargs.items():
         print('{} = {}'.format(k, v))
