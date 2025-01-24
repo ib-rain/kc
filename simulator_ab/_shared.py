@@ -135,9 +135,76 @@ def check_test(test, a, b, alpha=0.05):
     return int(test(a, b).pvalue < alpha)
 
 
+### Lesson 4.
+def plot_pvalue_ecdf(pvalues, title=None):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+    if title:
+        plt.suptitle(title)
+
+    sns.histplot(pvalues, ax=ax1, bins=20, stat='density')
+    ax1.plot([0,1], [1,1], 'k--')
+    ax1.set(xlabel='p-value', ylabel='Density')
+
+    sns.ecdfplot(pvalues, ax=ax2)
+    ax2.plot([0,1], [0,1], 'k--')
+    ax2.set(xlabel='p-value', ylabel='Probability')
+    ax2.grid()
+    
+    
 def print_kwargs(**kwargs):
     """Prints keyword agruments with their names (thus, requires named argument call)."""
     for (k, v) in kwargs.items():
         print('{} = {}'.format(k, v))
+
+
+### Lesson 5.
+def get_quantile_diff(values_a, values_b, quantile: float=0.999):
+    return np.quantile(values_b, quantile) - np.quantile(values_a, quantile)
+
+
+def get_bootstrap_point_estimates(values_a, values_b, quantile: float=0.999, N: int=1_000):
+    bootstrap_point_estimates = []
+    
+    for _ in range(N):
+        bootstrap_values_a = np.random.choice(values_a, size=len(values_a), replace=True)
+        bootstrap_values_b = np.random.choice(values_b, size=len(values_b), replace=True)
+        bootstrap_point_estimates.append(get_quantile_diff(bootstrap_values_a, bootstrap_values_b, quantile))
+            
+    return bootstrap_point_estimates
+
+
+# Optimized code.
+def get_bootstrap_confidence_interval(
+    bootstrap_values: np.array,
+    point_estimate: float=0.0,
+    ci_type: str='normal',
+    alpha: float=0.05
+):
+    """
+    Bulding confidence interval.
+    
+    :param bootstrap_values: bootstrapped values of the metric.
+    :param point_estimate: point estimate of the metric.
+    :param ci_type: confidence interval type.
+    :param alpha: level of significance.
+    
+    :returns: (left, right) - tuple containing confidence interval ends.
+    """
+    left, right = None, None
+    
+    if ci_type == 'normal':
+        ppf_ = stats.norm.ppf(1.0 - alpha / 2)
+        std_ = np.std(bootstrap_values)
+        
+        left, right = point_estimate - ppf_ * std_, point_estimate + ppf_ * std_
+
+    elif ci_type == 'percentile':
+        left, right = np.quantile(bootstrap_values, [alpha / 2, 1.0 - alpha / 2])
+    
+    elif ci_type == 'pivotal':
+        left, right = 2 * point_estimate - np.quantile(bootstrap_values, [1.0 - alpha / 2, alpha / 2])
+    
+    return (left, right)
 
 
