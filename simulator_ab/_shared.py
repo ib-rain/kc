@@ -208,3 +208,11 @@ def get_bootstrap_confidence_interval(
     return (left, right)
 
 
+### Lesson 5.
+def remove_outliers_quantile(values: pd.Series, quantile_num: float=0.01):
+    return values.loc[
+        (values > np.quantile(values, quantile_num / 2.0))
+        & (values < np.quantile(values, 1.0 - quantile_num / 2.0))
+    ]
+
+
