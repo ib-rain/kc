@@ -216,3 +216,22 @@ def remove_outliers_quantile(values: pd.Series, quantile_num: float=0.01):
     ]
 
 
+### Lesson 8.
+def calc_strat_stats(df, weight):
+    df_agg = df.groupby('strat')['metric'].agg(['mean', 'var'])
+    df_agg.columns = ['mean', 'var']
+    
+    df_agg_w = df_agg.merge(
+        right=weight,
+        how='inner',
+        left_index=True,
+        right_index=True
+    )
+    # Re-normalizing:
+    df_agg_w['weight'] = df_agg_w['weight'] / df_agg_w['weight'].sum()
+    
+    strat_mean = (df_agg_w['weight'] * df_agg_w['mean']).sum()
+    strat_var = (df_agg_w['weight'] * df_agg_w['var']).sum()
+    
+    return (strat_mean, strat_var)
+
