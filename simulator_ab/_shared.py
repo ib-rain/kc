@@ -235,3 +235,13 @@ def calc_strat_stats(df, weight):
     
     return (strat_mean, strat_var)
 
+
+### Lesson 9.
+def calculate_theta(x, y):
+    """theta = covariance(y, x) / variance(x)"""
+    covariance = np.cov(y, x)[0, 1]
+    variance = x.var()
+
+    return covariance / variance
+
+
