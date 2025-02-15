@@ -73,7 +73,7 @@ def get_data_subset(df, begin_date=None, end_date=None, user_ids=None, columns=N
         begin_date_ = df['date'].min()
     if not end_date_:
         end_date_ = df['date'].max() + timedelta(days=1)
-    if not user_ids_.any():
+    if user_ids_ is None:
         user_ids_ = df['user_id'].unique()
     if not columns_:
         columns_ = df.columns.to_list()
