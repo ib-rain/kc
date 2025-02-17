@@ -250,3 +250,24 @@ def calculate_theta(metric, covariate):
     return covariance / variance
 
 
+### Lesson 12.
+def calculate_linearized_metrics_optimized(control_metrics, pilot_metrics):
+    src = [control_metrics, pilot_metrics]
+    res = [0, 0]
+
+    #Nice (almost enough to excuse separate dfs).
+    kappa = control_metrics['metric'].mean()
+    
+    for (i, df) in enumerate(src):
+        res[i] = (
+            df
+            .groupby('user_id')
+            ['metric'].agg(['sum', 'count'])
+            .reset_index()
+        )
+        
+        res[i]['metric'] = res[i]['sum'] - kappa * res[i]['count']
+        res[i] = res[i].loc[:, ['user_id', 'metric']]
+    
+    return res
+
